@@ -1,128 +1,68 @@
-from PIL import Image
-import glob
-import random
+import cv2
+import numpy as np
 
-# Calculates difference between two colors
-def distance (color1, color2):
-    if color1[3] == 0 and color2[3] == 0:
-        return 0
-    return (color2[0] - color1[0])**2 + (color2[1] - color1[1])**2 + (color2[2] - color1[2])**2 + (color2[3] - color1[3])**2
+# Resizes an image to the given dimensions
+def resizeImage(image, width, height = 0):
+    if height == 0:
+        height = width
 
-# Shrinks an image to be at most 1/20 of the base image
-def sizeFix (img1, img2):
-    baseWidth, baseHeight = img1.size
-    imgWidth, imgHeight = img2.size
-    sizeFactor = 20
-    
-    if imgWidth * sizeFactor < baseWidth and imgHeight * sizeFactor < baseHeight:
-        return img2
-    if imgWidth >= imgHeight:
-        return img2.resize((int(baseWidth / sizeFactor), int(imgHeight / imgWidth * baseWidth / sizeFactor)))
-    return img2.resize((int(imgWidth / imgHeight * baseHeight / sizeFactor), int(baseHeight / sizeFactor)))
+    # Resizes with INTER_AREA if shrinking, otherwise with INTER_CUBIC
+    if (width * height) / (image.shape[1] * image.shape[0]) < 1:
+        return cv2.resize(image, (width, height), cv2.INTER_AREA).astype(np.uint8)
+    else:
+        return cv2.resize(image, (width, height), cv2.INTER_CUBIC).astype(np.uint8)
 
-# Returns a random position on the image, excluding transparent areas
-def findPlacement (img):
-    base = img.load()
-    width, height = img.size
+# Converts an image from RGB to RGBA format
+def convertToRGBA(image):
+    # Appends an alpha value of 255 to every pixel if in RGB format
+    if image.shape[2] == 3:
+        alpha = np.full((image.shape[0], image.shape[1], 1), 255)
+        image = np.concatenate((image, alpha), axis=2)
 
-    while True:
-        pos = (random.randrange(0, width), random.randrange(0, height))
-        if base[pos[0], pos[1]][3]:
-            return pos
+    # Force converts alpha value to int (if float)
+    image[image[:, :, 3] == 0] = 0
+    return image.astype(np.uint8)
 
-# Takes in two images and a position, returns the color difference
-def imageCompare (img1, img2, pos):
-    base = img1.load()
-    baseWidth, baseHeight = img1.size
-    img = img2.load()
-    imgWidth, imgHeight = img2.size
-    total = 0
-    count = 0
+# Finds an image from a list of images that best matches the given image block
+def bestImage(imageBlock, imageList, avgList):
+    # Gets the average color of the block
+    avgColor = np.nanmean(imageBlock, axis=(0, 1))
 
-    for y in range(imgHeight):
-        for x in range(imgWidth):
-            total += distance(base[(x+pos[0]) % baseWidth, (y+pos[1]) % baseHeight], img[x, y])
-            count += 1
+    # If the image block is mostly transparent, return a transparent block, otherwise the best matching
+    if avgColor[3] < 128:
+        return np.zeros((imageBlock.shape[1], imageBlock.shape[0], 4), dtype=np.uint8)
+    else:
+        best = None
+        bestDist = float('inf')
+        
+        # Finds the Euclidean distance between the average color and every image, selects the lowest
+        for i in range(len(imageList)):
+            distance = np.linalg.norm(avgColor - avgList[i])
+            if distance < bestDist:
+                best = imageList[i]
+                bestDist = distance
+        return best.astype(np.uint8)
 
-    return total / count
+# Builds a mosaic replica of the base image from the image list
+def build(baseImage, imageList, size, basePresence):
+    # Formats the base image and stores its width and height
+    width, height = baseImage.shape[1], baseImage.shape[0]
+    baseImage = convertToRGBA(resizeImage(baseImage, width - width % size, height - height % size))
+    width, height = baseImage.shape[1], baseImage.shape[0]
 
-# Takes in two images and a position, places the second image on the first at the position
-def placeImage (img1, img2, pos):
-    build = img1.load()
-    buildWidth, buildHeight = img1.size
-    img = img2.load()
-    imgWidth, imgHeight = img2.size
+    # Formats every image in the list to the requested size and stores their average colors
+    imageList = [convertToRGBA(resizeImage(image, size)) for image in imageList]
+    avgList = [np.nanmean(image, axis=(0, 1)) for image in imageList]
 
-    for y in range(imgHeight):
-        for x in range(imgWidth):
-            if img[x, y][3] > 0:
-                build[(x+pos[0]) % buildWidth, (y+pos[1]) % buildHeight] = img[x, y]
+    # Creates a blank image which will be built upon
+    img = np.zeros((height, width, 4), dtype=np.uint8)
 
-
-if __name__ == "__main__":
-    # Read in base image
-    base = None
-    print("Enter the base image name: ", end = "")
-
-    while True:
-        try:
-            baseName = input()
-            if len(baseName) == 0:
-                raise OSError
-            base = Image.open(baseName).convert("RGBA")
-            break
-        except OSError:
-            print("Cannot find file or file is not an image. Please try again: ", end = "")
-
-    # Create blank new image with same dimensions as base
-    img = Image.new("RGBA", base.size, color=(0, 0, 0, 0))
-    
-    # Read in images from folder into image list
-    imageList = []
-    print("Enter the images folder name: ", end = "")
-
-    while True:
-        dirName = input()
-        if len(dirName) and dirName[-1] != "\\":
-            dirName += "\\"
-
-        for name in (glob.glob(dirName + "*.png") + glob.glob(dirName + "*.jpg") + glob.glob(dirName + "*.jpeg")):
-            try:
-                imageList.append(sizeFix(base, Image.open(name).convert("RGBA")))
-            except OSError:
-                print("Omitting " + name)
-
-        if len(imageList):
-            break
-        print("Cannot find folder or folder contains no images. Please try again: ", end = "")
-    
-    # Read in amount of images to be placed
-    imagesCount = 0
-    print("Enter the amount of images to be placed: ", end = "")
-
-    while True:
-        try:
-            imagesCount = int(input())
-            break
-        except ValueError:
-            print("Incorrect input. Please enter a whole number: ", end = "")
-
-    # Places images from image list onto new image, matching colors of base image as closely as possible
-    for i in range(imagesCount):
-        pos = findPlacement(base)
-        closest = imageList[0]
-        closestDiff = imageCompare(base, imageList[0], (pos[0] - imageList[0].size[0]//2, pos[1] - imageList[0].size[1]//2))
-
-        for j in range(1, len(imageList)):
-            diff = imageCompare(base, imageList[j], (pos[0] - imageList[j].size[0]//2, pos[1] - imageList[j].size[1]//2))
-            if diff < closestDiff:
-                closest = imageList[j]
-                closestDiff = diff
-
-        placeImage(img, closest, (pos[0] - closest.size[0]//2, pos[1] - closest.size[1]//2))
-        if (i + 1) % (imagesCount / 1000) < 1:
-            print(f"{i+1} images placed")
-
-    # Saves newly created image
-    img.save("Built_Image.png")
-    input("Built_Image.png created. Press enter to exit ...\n")
+    # Finds the best match for every block of the base image and adds it to the blank image
+    for x in range(0, width, size):
+        for y in range(0, height, size):
+            best = bestImage(baseImage[y: y + size, x: x + size], imageList, avgList)
+            
+            # Places the best match on the blank image, including the requested base color presence
+            img[y: y + size, x: x + size] = cv2.addWeighted(best, 1 - basePresence, baseImage[y: y + size, x: x + size], basePresence, 0)
+            
+    return img
