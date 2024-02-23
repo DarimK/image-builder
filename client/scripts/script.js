@@ -1,8 +1,20 @@
 const img = document.getElementById("img");
+const imageForm = document.getElementById("imageForm");
+const submitButton = document.getElementById("submitButton");
 const apiURL = (window.location.hostname === "www.darim.me") ? "https://imagebuilder.onrender.com" : "http://localhost:5000";
 
 
-async function apiImageFetch(endpoint, formData) {
+function enableElement(element) {
+    element.disabled = false;
+    element.classList.remove("noHover");
+}
+
+function disableElement(element) {
+    element.disabled = true;
+    element.classList.add("noHover");
+}
+
+async function apiImageFetch(endpoint, formData, callback) {
     try {
         const response = await fetch(`${apiURL}/${endpoint}`, {
             method: "POST",
@@ -11,12 +23,35 @@ async function apiImageFetch(endpoint, formData) {
         if (response.headers.get("content-type") === "image/png") {
             const blob = await response.blob();
             img.src = URL.createObjectURL(blob);
-        } else {
+        } else if (response.headers.get("content-type") === "application/json") {
             const data = await response.json();
             alert(`Error: ${data.error}`);
-        }
+        } else
+            alert("Please wait before sending more requests");
     } catch(e) {
-        console.error("Error:", error);
+        console.error("Error:", e);
         alert("An error occurred. Please try again.");
     }
+    callback();
+}
+
+function addFormListener(formObjectTypes, endpoint) {
+    imageForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        
+        for (id in formObjectTypes) {
+            if (formObjectTypes[id] === "files") {
+                const files = document.getElementById(id).files;
+                for (var i = 0; i < files.length; i++)
+                    formData.append(id, files[i]);
+            } else if (formObjectTypes[id] === "value")
+                formData.append(id, document.getElementById(id).value);
+        }
+
+        disableElement(submitButton);
+        apiImageFetch(endpoint, formData, () => {
+            enableElement(submitButton);
+        });
+    });
 }

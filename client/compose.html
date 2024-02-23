@@ -28,12 +28,12 @@
                     <input id="imageList" type="file" name="imageList" multiple directory accept="image/*" required><br>
                     <br>
                     <label for="imagesSize">Block size:</label><br>
-                    <input id="imagesSize" type="number" name="imagesSize" min="1" required><br>
+                    <input id="imagesSize" type="number" name="imagesSize" min="1" max="10000" placeholder="1 to base size" required><br>
                     <br>
                     <label for="basePresence">Base image opacity:</label><br>
-                    <input id="basePresence" type="number" name="basePresence" min="0" max="1" step="0.01" required><br>
+                    <input id="basePresence" type="number" name="basePresence" min="0" max="1" step="0.01" placeholder="0 to 1" required><br>
                     <br>
-                    <button type="submit">Compose</button>
+                    <button id="submitButton" type="submit">Compose</button>
                 </form>
                 
                 <div class="imageBox">
@@ -45,20 +45,12 @@
     
     <script src="scripts/script.js"></script>
     <script>
-        document.getElementById("imageForm").addEventListener("submit", (event) => {
-            event.preventDefault();
-            var formData = new FormData();
-            
-            formData.append("baseImage", document.getElementById("baseImage").files[0]);
-            var imageFolderInput = document.getElementById("imageList").files;
-            for (var i = 0; i < imageFolderInput.length; i++) {
-                formData.append("imageList", imageFolderInput[i]);
-            }
-            formData.append("imagesSize", document.getElementById("imagesSize").value);
-            formData.append("basePresence", document.getElementById("basePresence").value);
-
-            apiImageFetch("compose", formData);
-        });
+        addFormListener({
+            baseImage: "files",
+            imageList: "files",
+            imagesSize: "value",
+            basePresence: "value"
+        }, "compose");
     </script>
 </body>
 </html>
