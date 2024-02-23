@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize - Image Builder</title>
+    <link rel="stylesheet" href="styles/base.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="wrapper outerWrapper">
+            <h1>
+                <a href="index.html">Image Builder</a>
+            </h1>
+            <nav>
+                <ul class="menu">
+                    <li><a href="compose.html">Compose</a></li>
+                    <li><a href="resize.html" class="selected">Resize</a></li>
+                </ul>
+            </nav>
+
+            <div class="wrapper innerWrapper">
+                <form id="imageForm" class="imageForm" enctype="multipart/form-data">
+                    <label for="baseImage">Image:</label><br>
+                    <input id="baseImage" type="file" name="baseImage" accept="image/*" required><br>
+                    <br>
+                    <label for="imageWidth">New width:</label><br>
+                    <input id="imageWidth" type="number" name="imageWidth" min="1" required><br>
+                    <br>
+                    <label for="imageHeight">New height:</label><br>
+                    <input id="imageHeight" type="number" name="imageHeight" min="1" required><br>
+                    <br>
+                    <button type="submit">Resize</button>
+                </form>
+
+                <div class="imageBox">
+                    <img id="img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/script.js"></script>
+    <script>
+        document.getElementById("imageForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            var formData = new FormData();
+            formData.append("baseImage", document.getElementById("baseImage").files[0]);
+            formData.append("imageWidth", document.getElementById("imageWidth").value);
+            formData.append("imageHeight", document.getElementById("imageHeight").value);
+
+            apiImageFetch("resize", formData);
+        });
+    </script>
+</body>
+</html>

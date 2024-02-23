@@ -1,0 +1,153 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap");
+
+* {
+    font-family: "Work Sans", sans-serif;
+    touch-action: pan-y;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    font-size: 16px;
+    font-size: max(1vw, 4px);
+
+	--background: #101010;
+	--divMain: #202020;
+    --divSecond: #303030;
+	--textMain: #e0e0e0;
+    --textSecond: #c0c0c0;
+	--textThird: #303030;
+	--buttonMain: #606060;
+	--buttonSecond: #707070;
+    --inputMain: #e0e0e0;
+}
+
+html, body {
+    background-color: var(--background);
+    width: 100%;
+    height: 100%;
+    padding-bottom: 2rem;
+}
+
+h1 {
+    color: var(--textMain);
+	font-size: 3rem;
+	margin: 0 0 1rem 0;
+}
+
+h2 {
+    color: var(--textMain);
+	font-size: 2rem;
+	margin: 0 0 1rem 0;
+}
+
+p {
+    color: var(--textSecond);
+	font-size: 1.5rem;
+}
+
+a {
+	text-decoration: none;
+    color: var(--textMain);
+}
+
+button, input {
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+
+.wrapper {
+    padding: 1rem 2rem;
+}
+
+.outerWrapper {
+    background-color: var(--divMain);
+    border-radius: 0.5rem;
+    margin: 2rem 4rem;
+}
+
+.menu {
+    border-bottom: 0.25rem solid var(--buttonMain);
+}
+
+.menu > li {
+    display: inline-block;
+	margin: 0 0 0 1rem;
+}
+
+.menu > li > a {
+    display: block;
+    cursor: pointer;
+    border: 0.25rem solid var(--buttonMain);
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+	font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    transition: background-color 250ms ease;
+}
+
+.menu > li > a:hover {
+    background-color: var(--buttonMain);
+}
+
+.selected {
+    pointer-events: none;
+    background-color: var(--buttonMain);
+}
+
+
+.innerWrapper {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--divSecond);
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+}
+
+.imageForm > * {
+    color: var(--textMain);
+}
+
+.imageForm > label {
+	font-size: 1.5rem;
+}
+
+.imageForm > input {
+	font-size: 1rem;
+    min-width: 15rem;
+}
+
+.imageForm > input[type="number"] {
+    cursor: text;
+    color: var(--textThird);
+    background-color: var(--inputMain);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.imageForm > button {
+    background-color: var(--buttonMain);
+    border-radius: 0.5rem;
+	font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    transition: background-color 250ms ease;
+}
+
+.imageForm > button:hover {
+    background-color: var(--buttonSecond);
+}
+
+.imageBox {
+    background-color: var(--background);
+    border-radius: 0.5rem;
+    width: 43rem;
+    height: fit-content;
+    padding: 2rem;
+}
+
+.imageBox > img {
+    width: 100%;
+    height: auto;
+}
