@@ -7,8 +7,12 @@ from utils import readPNG, sendPNG
 
 # Constants
 RATE_LIMIT = 5
-MAX_IMAGE_SIZE = 1024
-MAX_BASE_TO_BLOCK_RATIO = 128
+MEGABYTE = 2 ** 20
+MAX_REQUEST_SIZE = 8
+MAX_IMAGE_SIZE = 10000
+MAX_BASE_TO_BLOCK_RATIO = 100
+MAX_IMAGE_LIST_LENGTH = 250
+MAX_WIDTH_TO_HEIGHT_RATIO = 100
 
 # Flask app setup
 app = Flask(__name__)
@@ -25,9 +29,9 @@ CORS(app)
 @app.route("/resize", methods = ["POST"])
 @limiter.limit(f"{RATE_LIMIT} per minute")
 def resize():
-    # Aborts if the request is too large
-    if request.content_length > (MAX_IMAGE_SIZE * 2) ** 2:
-        return jsonify({ "error": f"Request content too large ({request.content_length} vs {(MAX_IMAGE_SIZE * 2) ** 2})" })
+    # Exits if the request is too large
+    if request.content_length / MEGABYTE > MAX_REQUEST_SIZE:
+        return jsonify({ "error": f"Request content too large ({int(request.content_length / MEGABYTE)}MB vs {MAX_REQUEST_SIZE}MB)" })
 
     try:
         # Gets the new width, height, and base image (decoded) from request
@@ -35,19 +39,27 @@ def resize():
         height = int(request.form["imageHeight"])
         base = readPNG(request.files["baseImage"].read())
 
+        # Input validation and error responses
+        if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"Image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
+        if max(width, height) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"New image dimensions are too large ({int(max(width, height))} vs {MAX_IMAGE_SIZE})" })
+        if max(width, height) / min(width, height) > MAX_WIDTH_TO_HEIGHT_RATIO:
+            return jsonify({ "error": f"New width to height ratio is too large ({int(max(width, height) / min(width, height))} vs {MAX_WIDTH_TO_HEIGHT_RATIO})" })
+
         # Resizes the image and sends it
         return sendPNG(resizeImage(base, width, height))
     
-    except Exception as e:
-        return jsonify({ "error": str(e) })
+    except Exception:
+        return jsonify({ "error": "Invalid file types or values" })
 
 # Compose image request
 @app.route("/compose", methods = ["POST"])
 @limiter.limit(f"{RATE_LIMIT} per minute")
 def compose():
-    # Aborts if the request is too large
-    if request.content_length > 64 * MAX_IMAGE_SIZE ** 2:
-        return jsonify({ "error": f"Request content too large ({request.content_length} vs {64 * MAX_IMAGE_SIZE ** 2})" })
+    # Exits if the request is too large
+    if request.content_length / MEGABYTE > MAX_REQUEST_SIZE * 8:
+        return jsonify({ "error": f"Request content too large ({int(request.content_length / MEGABYTE)}MB vs {MAX_REQUEST_SIZE * 8}MB)" })
 
     try:
         # Gets the images size, base presence, base image (decoded), and image list (decoded) from request
@@ -56,15 +68,23 @@ def compose():
         base = readPNG(request.files["baseImage"].read())
         imageList = [readPNG(image.read()) for image in request.files.getlist("imageList")]
 
-        # Exits if the base image to image block ratio is too large
+        # Input validation and error responses
+        if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"Base image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
+        if size > max(base.shape[1], base.shape[0]):
+            return jsonify({ "error": f"Block size is too large ({size} vs {max(base.shape[1], base.shape[0])})" })
         if (base.shape[1] * base.shape[0]) ** 0.5 / size > MAX_BASE_TO_BLOCK_RATIO:
-            return jsonify({ "error": f"Base image size to block size ratio is too large ({int((base.shape[1] * base.shape[0]) ** 0.5 / size)} vs {MAX_BASE_TO_BLOCK_RATIO})" })
+            return jsonify({ "error": f"Base image to block size ratio is too large ({int((base.shape[1] * base.shape[0]) ** 0.5 / size)} vs {MAX_BASE_TO_BLOCK_RATIO})" })
+        if len(imageList) > MAX_IMAGE_LIST_LENGTH:
+            return jsonify({ "error": f"Too many block images ({len(imageList)} vs {MAX_IMAGE_LIST_LENGTH})" })
+        if basePresence < 0 or basePresence > 1:
+            return jsonify({ "error": f"Invalid base image opacity ({basePresence} vs 0 - 1)" })
 
         # Builds the image and sends it
         return sendPNG(build(base, imageList, size, basePresence))
     
-    except Exception as e:
-        return jsonify({ "error": str(e) })
+    except Exception:
+        return jsonify({ "error": "Invalid file types or values" })
 
 if __name__ == "__main__":
     app.run(debug = True)
