@@ -49,8 +49,11 @@ function addFormListener(formObjectTypes, endpoint) {
                 formData.append(id, document.getElementById(id).value);
         }
 
+        img.src = "images/loading.gif";
         disableElement(submitButton);
         apiImageFetch(endpoint, formData, () => {
+            if (img.src.indexOf("images/loading.gif") !== -1)
+                img.src = "";
             enableElement(submitButton);
         });
     });
