@@ -1,7 +1,7 @@
 const img = document.getElementById("img");
 const imageForm = document.getElementById("imageForm");
 const submitButton = document.getElementById("submitButton");
-const apiURL = (window.location.hostname === "www.darim.me") ? "https://imagebuilder.onrender.com" : "http://localhost:5000";
+const apiURL = (window.location.hostname === "dev.darim.dev") ? "https://imagebuilder.onrender.com" : "http://localhost:5000";
 
 
 function enableElement(element) {

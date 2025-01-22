@@ -19,7 +19,7 @@ Image Builder is built with the following technologies:
 
 ## Demo
 
-You can try out Image Builder at <https://www.darim.me/ImageBuilder>. Please note that the Image Builder API is being hosted on a relatively slow server (free service), so image generation may take some time.
+You can try out Image Builder at <https://dev.darim.dev/image-builder>. Please note that the Image Builder API is being hosted on a relatively slow server (free service), so image generation may take some time.
 
 ## Installation
 
@@ -28,13 +28,13 @@ To run Image Builder locally, you need to have Python installed on your machine.
 - Clone this repository:
 
 ```
-git clone https://github.com/DarimK/ImageBuilder.git
+git clone https://github.com/darimk/image-builder.git
 ```
 
 - Navigate to the project folder:
 
 ```
-cd ImageBuilder
+cd image-builder
 ```
 
 - Install the dependencies:
