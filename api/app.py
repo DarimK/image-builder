@@ -3,7 +3,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from ImageBuilder import resizeImage, build
-from utils import readPNG, sendPNG
+from utils import read, send
 
 # Constants
 RATE_LIMIT = 5
@@ -36,7 +36,7 @@ def resize():
         # Gets the new width, height, and base image (decoded) from request
         width = int(request.form["imageWidth"])
         height = int(request.form["imageHeight"] or "0")
-        base = readPNG(request.files["baseImage"].read())
+        base = read(request.files["baseImage"].read())
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
@@ -45,7 +45,7 @@ def resize():
             return jsonify({ "error": f"New image dimensions are too large ({int(max(width, height))} vs {MAX_IMAGE_SIZE})" })
 
         # Resizes the image and sends it
-        return sendPNG(resizeImage(base, width, height))
+        return send(resizeImage(base, width, height), { "type": "png" })
     
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
@@ -62,8 +62,8 @@ def compose():
         # Gets the images size, base presence, base image (decoded), and image list (decoded) from request
         size = int(request.form["imagesSize"])
         basePresence = float(request.form["basePresence"])
-        base = readPNG(request.files["baseImage"].read())
-        imageList = [readPNG(image.read()) for image in request.files.getlist("imageList")]
+        base = read(request.files["baseImage"].read())
+        imageList = [read(image.read()) for image in request.files.getlist("imageList")]
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
@@ -78,7 +78,7 @@ def compose():
             return jsonify({ "error": f"Invalid base image opacity ({basePresence} vs 0 - 1)" })
 
         # Builds the image and sends it
-        return sendPNG(build(base, imageList, size, basePresence))
+        return send(build(base, imageList, size, basePresence), { "type": "png" })
     
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
