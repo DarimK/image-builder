@@ -4,7 +4,7 @@ import numpy as np
 # Resizes an image to the given dimensions
 def resizeImage(image, width, height = 0):
     if height == 0:
-        height = width
+        height = int(width / image.shape[1] * image.shape[0])
 
     # Resizes with INTER_AREA if shrinking, otherwise with INTER_CUBIC
     if (width * height) / (image.shape[1] * image.shape[0]) < 1:
@@ -51,7 +51,7 @@ def build(baseImage, imageList, size, basePresence):
     width, height = baseImage.shape[1], baseImage.shape[0]
 
     # Formats every image in the list to the requested size and stores their average colors
-    imageList = [convertToRGBA(resizeImage(image, size)) for image in imageList]
+    imageList = [convertToRGBA(resizeImage(image, size, size)) for image in imageList]
     avgList = [np.nanmean(image, axis=(0, 1)) for image in imageList]
 
     # Creates a blank image which will be built upon

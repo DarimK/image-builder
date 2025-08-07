@@ -12,7 +12,6 @@ MAX_REQUEST_SIZE = 8
 MAX_IMAGE_SIZE = 10000
 MAX_BASE_TO_BLOCK_RATIO = 100
 MAX_IMAGE_LIST_LENGTH = 250
-MAX_WIDTH_TO_HEIGHT_RATIO = 100
 
 # Flask app setup
 app = Flask(__name__)
@@ -36,7 +35,7 @@ def resize():
     try:
         # Gets the new width, height, and base image (decoded) from request
         width = int(request.form["imageWidth"])
-        height = int(request.form["imageHeight"])
+        height = int(request.form["imageHeight"] or "0")
         base = readPNG(request.files["baseImage"].read())
 
         # Input validation and error responses
@@ -44,8 +43,6 @@ def resize():
             return jsonify({ "error": f"Image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
         if max(width, height) > MAX_IMAGE_SIZE:
             return jsonify({ "error": f"New image dimensions are too large ({int(max(width, height))} vs {MAX_IMAGE_SIZE})" })
-        if max(width, height) / min(width, height) > MAX_WIDTH_TO_HEIGHT_RATIO:
-            return jsonify({ "error": f"New width to height ratio is too large ({int(max(width, height) / min(width, height))} vs {MAX_WIDTH_TO_HEIGHT_RATIO})" })
 
         # Resizes the image and sends it
         return sendPNG(resizeImage(base, width, height))
