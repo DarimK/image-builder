@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resize - Image Builder</title>
+    <title>JPEG - Image Builder</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
             <nav>
                 <ul class="menu">
                     <li><a href="compose.html">Compose</a></li>
-                    <li><a href="resize.html" class="selected">Resize</a></li>
-                    <li><a href="jpeg.html">JPEG</a></li>
+                    <li><a href="resize.html">Resize</a></li>
+                    <li><a href="jpeg.html" class="selected">JPEG</a></li>
                 </ul>
             </nav>
 
@@ -25,13 +25,10 @@
                     <label for="baseImage">Image:</label><br>
                     <input id="baseImage" type="file" name="baseImage" accept="image/*" required><br>
                     <br>
-                    <label for="imageWidth">New width:</label><br>
-                    <input id="imageWidth" type="number" name="imageWidth" min="1" max="10000" placeholder="1 to 10000" required><br>
+                    <label for="quality">Quality:</label><br>
+                    <input id="quality" type="number" name="quality" min="0" max="100" placeholder="0 to 100" required><br>
                     <br>
-                    <label for="imageHeight">New height:</label><br>
-                    <input id="imageHeight" type="number" name="imageHeight" min="1" max="10000" placeholder="1 to 10000 (blank for auto)"><br>
-                    <br>
-                    <button id="submitButton" type="submit">Resize</button>
+                    <button id="submitButton" type="submit">Convert</button>
                 </form>
 
                 <div class="imageBox">
@@ -45,9 +42,8 @@
     <script>
         addFormListener({
             baseImage: "files",
-            imageWidth: "value",
-            imageHeight: "value"
-        }, "resize");
+            quality: "value"
+        }, "jpeg");
     </script>
 </body>
 </html>

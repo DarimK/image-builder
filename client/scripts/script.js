@@ -20,7 +20,7 @@ async function apiImageFetch(endpoint, formData, callback) {
             method: "POST",
             body: formData
         });
-        if (response.headers.get("content-type") === "image/png") {
+        if (response.headers.get("content-type").startsWith("image/")) {
             const blob = await response.blob();
             img.src = URL.createObjectURL(blob);
         } else if (response.headers.get("content-type") === "application/json") {

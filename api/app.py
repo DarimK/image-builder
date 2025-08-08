@@ -24,6 +24,31 @@ limiter = Limiter(
 CORS(app)
 
 
+# JPEG image conversion request
+@app.route("/jpeg", methods = ["POST"])
+@limiter.limit(f"{RATE_LIMIT} per minute")
+def jpeg():
+    # Exits if the request is too large
+    if request.content_length / MEGABYTE > MAX_REQUEST_SIZE:
+        return jsonify({ "error": f"Request content too large ({int(request.content_length / MEGABYTE)}MB vs {MAX_REQUEST_SIZE}MB)" })
+    
+    try:
+        # Gets the quality and base image (decoded) from request
+        quality = int(request.form["quality"])
+        base = read(request.files["baseImage"].read())
+
+        # Input validation and error responses
+        if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"Image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
+        if quality < 0 or quality > 100:
+            return jsonify({ "error": f"Invalid base image opacity ({quality} vs 0 - 100)" })
+        
+        # Converts the image and sends it
+        return send(base, { "type": "jpeg", "quality": quality })
+    
+    except Exception:
+        return jsonify({ "error": "Invalid file types or values" })
+
 # Resize image request
 @app.route("/resize", methods = ["POST"])
 @limiter.limit(f"{RATE_LIMIT} per minute")

@@ -22,7 +22,7 @@ def encode_JPG(image, quality):
 def send(image, properties):
     if (properties["type"] == "png"):
         img_data = encode_PNG(image)
-    elif (properties["type"] == "jpg"):
+    elif (properties["type"] == "jpeg"):
         img_data = encode_JPG(image, properties["quality"])
     else:
         return None
