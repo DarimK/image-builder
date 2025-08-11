@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
-from ImageBuilder import resizeImage, build
+from ImageBuilder import resize_image, build
 from utils import read, send
 
 # Constants
@@ -70,7 +70,7 @@ def resize():
             return jsonify({ "error": f"New image dimensions are too large ({int(max(width, height))} vs {MAX_IMAGE_SIZE})" })
 
         # Resizes the image and sends it
-        return send(resizeImage(base, width, height), { "type": "png" })
+        return send(resize_image(base, width, height), { "type": "png" })
     
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
@@ -86,9 +86,9 @@ def compose():
     try:
         # Gets the images size, base presence, base image (decoded), and image list (decoded) from request
         size = int(request.form["imagesSize"])
-        basePresence = float(request.form["basePresence"])
+        base_presence = float(request.form["basePresence"])
         base = read(request.files["baseImage"].read())
-        imageList = [read(image.read()) for image in request.files.getlist("imageList")]
+        image_list = [read(image.read()) for image in request.files.getlist("imageList")]
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
@@ -97,13 +97,13 @@ def compose():
             return jsonify({ "error": f"Block size is too large ({size} vs {max(base.shape[1], base.shape[0])})" })
         if (base.shape[1] * base.shape[0]) ** 0.5 / size > MAX_BASE_TO_BLOCK_RATIO:
             return jsonify({ "error": f"Base image to block size ratio is too large ({int((base.shape[1] * base.shape[0]) ** 0.5 / size)} vs {MAX_BASE_TO_BLOCK_RATIO})" })
-        if len(imageList) > MAX_IMAGE_LIST_LENGTH:
-            return jsonify({ "error": f"Too many block images ({len(imageList)} vs {MAX_IMAGE_LIST_LENGTH})" })
-        if basePresence < 0 or basePresence > 1:
-            return jsonify({ "error": f"Invalid base image opacity ({basePresence} vs 0 - 1)" })
+        if len(image_list) > MAX_IMAGE_LIST_LENGTH:
+            return jsonify({ "error": f"Too many block images ({len(image_list)} vs {MAX_IMAGE_LIST_LENGTH})" })
+        if base_presence < 0 or base_presence > 1:
+            return jsonify({ "error": f"Invalid base image opacity ({base_presence} vs 0 - 1)" })
 
         # Builds the image and sends it
-        return send(build(base, imageList, size, basePresence), { "type": "png" })
+        return send(build(base, image_list, size, base_presence), { "type": "png" })
     
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
