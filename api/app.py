@@ -75,10 +75,10 @@ def resize():
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
 
-# Compose image request
-@app.route("/compose", methods = ["POST"])
+# Mosaic image request
+@app.route("/mosaic", methods = ["POST"])
 @limiter.limit(f"{RATE_LIMIT} per minute")
-def compose():
+def mosaic():
     # Exits if the request is too large
     if request.content_length / MEGABYTE > MAX_REQUEST_SIZE * 8:
         return jsonify({ "error": f"Request content too large ({int(request.content_length / MEGABYTE)}MB vs {MAX_REQUEST_SIZE * 8}MB)" })

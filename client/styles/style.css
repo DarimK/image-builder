@@ -1,15 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap");
 
 * {
-    font-family: "Work Sans", sans-serif;
+    /* font-family: "Work Sans", sans-serif; */
+    font-family: "Ubuntu", Consolas, monospace;
     touch-action: pan-y;
     margin: 0;
     padding: 0;
 }
 
 :root {
-    font-size: 16px;
-    font-size: max(1vw, 4px);
+    font-size: 12px;
+    font-size: min(max(1vw, 4px), 16px);
 
 	--background: #101010;
 	--divMain: #202020;
@@ -41,6 +43,7 @@ h2 {
 }
 
 p {
+    line-height: 1.5;
     color: var(--textSecond);
 	font-size: 1.5rem;
 }
@@ -107,7 +110,7 @@ button, input {
     justify-content: space-between;
     background-color: var(--divSecond);
     border-radius: 0.5rem;
-    margin: 2rem 0;
+    /* margin: 2rem 0 0 0; */
 }
 
 .imageForm > * {

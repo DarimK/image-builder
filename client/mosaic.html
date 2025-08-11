@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compose - Image Builder</title>
+    <title>Mosaic - Image Builder</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
     <div class="wrapper">
         <div class="wrapper outerWrapper">
@@ -14,11 +16,19 @@
             </h1>
             <nav>
                 <ul class="menu">
-                    <li><a href="compose.html" class="selected">Compose</a></li>
+                    <li><a href="mosaic.html" class="selected">Mosaic</a></li>
                     <li><a href="resize.html">Resize</a></li>
                     <li><a href="jpeg.html">JPEG</a></li>
                 </ul>
             </nav>
+
+            <div class="wrapper">
+                <p>
+                    Create a mosaic-like replica of an image out of several other images you provide. You can adjust the
+                    size of the block images and control the opacity of the base image in the final result. It is
+                    recommended to use relatively square-shaped block images to prevent distortion.
+                </p>
+            </div>
 
             <div class="wrapper innerWrapper">
                 <form id="imageForm" class="imageForm" enctype="multipart/form-data">
@@ -29,21 +39,23 @@
                     <input id="imageList" type="file" name="imageList" multiple directory accept="image/*" required><br>
                     <br>
                     <label for="imagesSize">Block size:</label><br>
-                    <input id="imagesSize" type="number" name="imagesSize" min="1" max="10000" placeholder="1 to base size" required><br>
+                    <input id="imagesSize" type="number" name="imagesSize" min="1" max="10000"
+                        placeholder="1 to base size" required><br>
                     <br>
                     <label for="basePresence">Base image opacity:</label><br>
-                    <input id="basePresence" type="number" name="basePresence" min="0" max="1" step="0.01" placeholder="0 to 1" required><br>
+                    <input id="basePresence" type="number" name="basePresence" min="0" max="1" step="0.01"
+                        placeholder="0 to 1" required><br>
                     <br>
-                    <button id="submitButton" type="submit">Compose</button>
+                    <button id="submitButton" type="submit">Create</button>
                 </form>
-                
+
                 <div class="imageBox">
                     <img id="img">
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script src="scripts/script.js"></script>
     <script>
         addFormListener({
@@ -51,7 +63,8 @@
             imageList: "files",
             imagesSize: "value",
             basePresence: "value"
-        }, "compose");
+        }, "mosaic");
     </script>
 </body>
+
 </html>

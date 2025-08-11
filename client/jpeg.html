@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JPEG - Image Builder</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
+
 <body>
     <div class="wrapper">
         <div class="wrapper outerWrapper">
@@ -14,11 +16,18 @@
             </h1>
             <nav>
                 <ul class="menu">
-                    <li><a href="compose.html">Compose</a></li>
+                    <li><a href="mosaic.html">Mosaic</a></li>
                     <li><a href="resize.html">Resize</a></li>
                     <li><a href="jpeg.html" class="selected">JPEG</a></li>
                 </ul>
             </nav>
+
+            <div class="wrapper">
+                <p>
+                    Convert an image to JPEG format. You can set the quality from 0 to 100, with a lower quality
+                    providing a smaller file.
+                </p>
+            </div>
 
             <div class="wrapper innerWrapper">
                 <form id="imageForm" class="imageForm" enctype="multipart/form-data">
@@ -26,7 +35,8 @@
                     <input id="baseImage" type="file" name="baseImage" accept="image/*" required><br>
                     <br>
                     <label for="quality">Quality:</label><br>
-                    <input id="quality" type="number" name="quality" min="0" max="100" placeholder="0 to 100" required><br>
+                    <input id="quality" type="number" name="quality" min="0" max="100" placeholder="0 to 100"
+                        required><br>
                     <br>
                     <button id="submitButton" type="submit">Convert</button>
                 </form>
@@ -46,4 +56,5 @@
         }, "jpeg");
     </script>
 </body>
+
 </html>
