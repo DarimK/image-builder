@@ -6,11 +6,11 @@ def resize_image(image, width, height = 0):
     if height == 0:
         height = int(width / image.shape[1] * image.shape[0])
 
-    # Resizes with INTER_AREA if shrinking, otherwise with INTER_CUBIC
+    # Resizes with INTER_AREA if shrinking, otherwise with INTER_NEAREST
     if (width * height) / (image.shape[1] * image.shape[0]) < 1:
-        return cv2.resize(image, (width, height), cv2.INTER_AREA).astype(np.uint8)
+        return cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA).astype(np.uint8)
     else:
-        return cv2.resize(image, (width, height), cv2.INTER_CUBIC).astype(np.uint8)
+        return cv2.resize(image, (width, height), interpolation=cv2.INTER_NEAREST).astype(np.uint8)
 
 # Converts an image from RGB to RGBA format
 def convert_to_RGBA(image):

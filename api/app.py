@@ -39,7 +39,7 @@ def jpeg():
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
-            return jsonify({ "error": f"Image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
+            return jsonify({ "error": f"Image dimensions are too large ({max(base.shape[1], base.shape[0])} vs {MAX_IMAGE_SIZE})" })
         if quality < 0 or quality > 100:
             return jsonify({ "error": f"Invalid base image opacity ({quality} vs 0 - 100)" })
         
@@ -65,9 +65,9 @@ def resize():
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
-            return jsonify({ "error": f"Image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
-        if max(width, height) > MAX_IMAGE_SIZE:
-            return jsonify({ "error": f"New image dimensions are too large ({int(max(width, height))} vs {MAX_IMAGE_SIZE})" })
+            return jsonify({ "error": f"Image dimensions are too large ({max(base.shape[1], base.shape[0])} vs {MAX_IMAGE_SIZE})" })
+        if max(width, height or int(width / base.shape[1] * base.shape[0])) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"New image dimensions are too large ({max(width, height or int(width / base.shape[1] * base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
 
         # Resizes the image and sends it
         return send(resize_image(base, width, height), { "type": "png" })
@@ -92,7 +92,7 @@ def mosaic():
 
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
-            return jsonify({ "error": f"Base image dimensions are too large ({int(max(base.shape[1], base.shape[0]))} vs {MAX_IMAGE_SIZE})" })
+            return jsonify({ "error": f"Base image dimensions are too large ({max(base.shape[1], base.shape[0])} vs {MAX_IMAGE_SIZE})" })
         if size > max(base.shape[1], base.shape[0]):
             return jsonify({ "error": f"Block size is too large ({size} vs {max(base.shape[1], base.shape[0])})" })
         if (base.shape[1] * base.shape[0]) ** 0.5 / size > MAX_BASE_TO_BLOCK_RATIO:
