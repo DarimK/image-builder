@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from sklearn.cluster import KMeans
 
 # Resizes an image to the given dimensions
 def resize_image(image, width, height = 0):
@@ -11,6 +12,19 @@ def resize_image(image, width, height = 0):
         return cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA).astype(np.uint8)
     else:
         return cv2.resize(image, (width, height), interpolation=cv2.INTER_NEAREST).astype(np.uint8)
+
+def quantize_image(image, n_colors):
+    # Reshape the image to be a list of pixels (float for kmeans)
+    pixels = image.reshape((-1, 3)).astype(np.float32)
+
+    # Apply KMeans
+    kmeans = KMeans(n_colors, random_state=42)
+    labels = kmeans.fit_predict(pixels)
+    centroids = kmeans.cluster_centers_.astype(np.uint8)
+
+    # Map each pixel to the centroid color and reshape to the original image shape
+    quantized_data = centroids[labels]
+    return quantized_data.reshape(image.shape)
 
 # Converts an image from RGB to RGBA format
 def convert_to_RGBA(image):

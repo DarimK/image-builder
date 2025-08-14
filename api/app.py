@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
-from ImageBuilder import resize_image, build
+from ImageBuilder import resize_image, quantize_image, build
 from utils import read, send
 
 # Constants
@@ -71,6 +71,29 @@ def resize():
 
         # Resizes the image and sends it
         return send(resize_image(base, width, height), { "type": "png" })
+    
+    except Exception:
+        return jsonify({ "error": "Invalid file types or values" })
+
+# Quantize image request
+@app.route("/quantize", methods = ["POST"])
+@limiter.limit(f"{RATE_LIMIT} per minute")
+def quantize():
+    # Exits if the request is too large
+    if request.content_length / MEGABYTE > MAX_REQUEST_SIZE:
+        return jsonify({ "error": f"Request content too large ({int(request.content_length / MEGABYTE)}MB vs {MAX_REQUEST_SIZE}MB)" })
+
+    try:
+        # Gets the color count and base image (decoded) from request
+        n_colors = int(request.form["colorCount"])
+        base = read(request.files["baseImage"].read())
+
+        # Input validation and error responses
+        if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
+            return jsonify({ "error": f"Image dimensions are too large ({max(base.shape[1], base.shape[0])} vs {MAX_IMAGE_SIZE})" })
+
+        # Quantizes the image and sends it
+        return send(quantize_image(base, n_colors), { "type": "png" })
     
     except Exception:
         return jsonify({ "error": "Invalid file types or values" })
