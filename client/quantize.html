@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resize - Image Builder</title>
+    <title>Quantize - Image Builder</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 
@@ -17,16 +17,16 @@
             <nav>
                 <ul class="menu">
                     <li><a href="mosaic.html">Mosaic</a></li>
-                    <li><a href="quantize.html">Quantize</a></li>
-                    <li><a href="resize.html" class="selected">Resize</a></li>
+                    <li><a href="quantize.html" class="selected">Quantize</a></li>
+                    <li><a href="resize.html">Resize</a></li>
                     <li><a href="jpeg.html">JPEG</a></li>
                 </ul>
             </nav>
 
             <div class="wrapper">
                 <p>
-                    Resize an image to a specific width and height. Leave the new height blank to auto scale the image
-                    based on the new width and aspect ratio of the image.
+                    Quantize an image to reduce the number of colors within the image. You can select the exact number
+                    of colors that should be present in the final result.
                 </p>
             </div>
 
@@ -35,15 +35,10 @@
                     <label for="baseImage">Image:</label><br>
                     <input id="baseImage" type="file" name="baseImage" accept="image/*" required><br>
                     <br>
-                    <label for="imageWidth">New width:</label><br>
-                    <input id="imageWidth" type="number" name="imageWidth" min="1" max="10000" placeholder="1 to 10000"
-                        required><br>
+                    <label for="colorCount">Number of colors:</label><br>
+                    <input id="colorCount" type="number" name="colorCount" min="1" placeholder="1 or more" required><br>
                     <br>
-                    <label for="imageHeight">New height:</label><br>
-                    <input id="imageHeight" type="number" name="imageHeight" min="1" max="10000"
-                        placeholder="1 to 10000 (blank for auto)"><br>
-                    <br>
-                    <button id="submitButton" type="submit">Resize</button>
+                    <button id="submitButton" type="submit">Quantize</button>
                 </form>
 
                 <div class="imageBox">
@@ -57,9 +52,8 @@
     <script>
         addFormListener({
             baseImage: "files",
-            imageWidth: "value",
-            imageHeight: "value"
-        }, "resize");
+            colorCount: "value"
+        }, "quantize");
     </script>
 </body>
 
