@@ -10,6 +10,7 @@ RATE_LIMIT = 5
 MEGABYTE = 2 ** 20
 MAX_REQUEST_SIZE = 8
 MAX_IMAGE_SIZE = 10000
+MAX_COLOR_COUNT = 250
 MAX_BASE_TO_BLOCK_RATIO = 100
 MAX_IMAGE_LIST_LENGTH = 250
 
@@ -91,6 +92,8 @@ def quantize():
         # Input validation and error responses
         if max(base.shape[1], base.shape[0]) > MAX_IMAGE_SIZE:
             return jsonify({ "error": f"Image dimensions are too large ({max(base.shape[1], base.shape[0])} vs {MAX_IMAGE_SIZE})" })
+        if n_colors > MAX_COLOR_COUNT:
+            return jsonify({ "error": f"Number of colors is too large ({n_colors} vs {MAX_COLOR_COUNT})" })
 
         # Quantizes the image and sends it
         return send(quantize_image(base, n_colors), { "type": "png" })

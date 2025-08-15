@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 
 # Resizes an image to the given dimensions
 def resize_image(image, width, height = 0):
@@ -13,18 +13,26 @@ def resize_image(image, width, height = 0):
     else:
         return cv2.resize(image, (width, height), interpolation=cv2.INTER_NEAREST).astype(np.uint8)
 
-def quantize_image(image, n_colors):
+# Reduces the number of colors in an image
+def quantize_image(image, n_colors, sample_size = 1000000):
     # Reshape the image to be a list of pixels (float for kmeans)
-    pixels = image.reshape((-1, 3)).astype(np.float32)
+    pixels = image.reshape((-1, 4 if image.shape[2] == 4 else 3)).astype(np.float32)
 
-    # Apply KMeans
-    kmeans = KMeans(n_colors, random_state=42)
-    labels = kmeans.fit_predict(pixels)
-    centroids = kmeans.cluster_centers_.astype(np.uint8)
+    # Random sampling for speed
+    if sample_size < len(pixels):
+        sample_idx = np.random.choice(len(pixels), sample_size, replace=False)
+        sample_pixels = pixels[sample_idx]
+    else:
+        sample_pixels = pixels
 
-    # Map each pixel to the centroid color and reshape to the original image shape
-    quantized_data = centroids[labels]
-    return quantized_data.reshape(image.shape)
+    # Apply KMeans on sample
+    kmeans = MiniBatchKMeans(n_colors, n_init=4, random_state=23)
+    kmeans.fit(sample_pixels)
+
+    # Assign every pixel to nearest centroid, then round and reshape to the image
+    labels = kmeans.predict(pixels)
+    quantized_data = np.rint(kmeans.cluster_centers_[labels])
+    return quantized_data.reshape(image.shape).astype(np.uint8)
 
 # Converts an image from RGB to RGBA format
 def convert_to_RGBA(image):
