@@ -135,4 +135,5 @@ def mosaic():
         return jsonify({ "error": "Invalid file types or values" })
 
 if __name__ == "__main__":
+    print("DEV MODE")
     app.run(debug = True)
